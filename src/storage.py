@@ -43,16 +43,27 @@ def upsert_items(items: list[dict[str, Any]]) -> int:
     kolik jich bylo nových -- to Supabase v tichém režimu nehlásí)."""
     if not items:
         return 0
+
+    # PostgREST (Supabase) vyžaduje, aby všechny objekty v jedné dávce měly
+    # STEJNOU sadu klíčů -- jinak vrátí chybu "All object keys must match".
+    # Různé sběrné moduly ale vrací mírně odlišná pole (YouTube položky mají
+    # navíc 'full_text', RSS/no-RSS položky ne), proto se tu sjednotí na
+    # stejnou sadu -- chybějící pole se doplní jako None.
+    all_keys: set[str] = set()
+    for item in items:
+        all_keys.update(item.keys())
+    normalized_items = [{key: item.get(key) for key in all_keys} for item in items]
+
     headers = _headers()
     # 'resolution=ignore-duplicates' = když už url existuje, řádek se přeskočí
     # místo aby to spadlo na chybu unikátnosti.
     headers["Prefer"] = "resolution=ignore-duplicates,return=minimal"
     try:
-        resp = requests.post(_base_url(), headers=headers, json=items, timeout=30)
+        resp = requests.post(_base_url(), headers=headers, json=normalized_items, timeout=30)
         if resp.status_code not in (200, 201, 204):
             logger.warning("Supabase upsert: neočekávaný status %s: %s",
                             resp.status_code, resp.text[:300])
-        return len(items)
+        return len(normalized_items)
     except requests.RequestException as e:
         logger.warning("Supabase upsert selhal: %s", e)
         return 0
