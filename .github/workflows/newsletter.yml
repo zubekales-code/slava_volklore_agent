@@ -2,31 +2,20 @@ name: Sláva/Volklore Newsletter
 
 on:
   schedule:
-    # Denně v 8:00 pražského času.
-    # POZOR: GitHub Actions umí plánovat jen podle UTC, ne podle pražského
-    # času, a nerozlišuje letní/zimní čas. '0 6 * * *' odpovídá 8:00 v létě
-    # (CEST, UTC+2). Na konci října a konci března je potřeba tenhle řádek
-    # (a řádek pro týdenní běh níže) ručně přepsat mezi '0 6 * * *' a
-    # '0 7 * * *' -- přesný postup je v README.
     - cron: '0 6 * * *'
-    # Týdenní delší shrnutí, jen v neděli, stejná logika letního/zimního
-    # času jako výše.
     - cron: '0 6 * * 0'
 
-  # Tohle je to tlačítko "Run workflow" pro ruční spuštění kdykoliv --
-  # najdeš ho v repozitáři v záložce "Actions" -> vyber tenhle workflow
-  # -> "Run workflow". Můžeš si vybrat, jestli chceš denní, nebo týdenní
-  # verzi.
   workflow_dispatch:
     inputs:
       mode:
-        description: "Kterou verzi spustit ručně"
+        description: "Co spustit ručně (diagnostics = jen otestovat služby, nic neposílá)"
         required: true
         default: "daily"
         type: choice
         options:
           - daily
           - weekly
+          - diagnostics
 
 jobs:
   run-newsletter:
@@ -65,4 +54,9 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
           JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
-        run: python main.py --mode ${{ steps.mode.outputs.value }}
+        run: |
+          if [ "${{ steps.mode.outputs.value }}" = "diagnostics" ]; then
+            python diagnose.py
+          else
+            python main.py --mode ${{ steps.mode.outputs.value }}
+          fi
