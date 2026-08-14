@@ -1,0 +1,68 @@
+name: Sláva/Volklore Newsletter
+
+on:
+  schedule:
+    # Denně v 8:00 pražského času.
+    # POZOR: GitHub Actions umí plánovat jen podle UTC, ne podle pražského
+    # času, a nerozlišuje letní/zimní čas. '0 6 * * *' odpovídá 8:00 v létě
+    # (CEST, UTC+2). Na konci října a konci března je potřeba tenhle řádek
+    # (a řádek pro týdenní běh níže) ručně přepsat mezi '0 6 * * *' a
+    # '0 7 * * *' -- přesný postup je v README.
+    - cron: '0 6 * * *'
+    # Týdenní delší shrnutí, jen v neděli, stejná logika letního/zimního
+    # času jako výše.
+    - cron: '0 6 * * 0'
+
+  # Tohle je to tlačítko "Run workflow" pro ruční spuštění kdykoliv --
+  # najdeš ho v repozitáři v záložce "Actions" -> vyber tenhle workflow
+  # -> "Run workflow". Můžeš si vybrat, jestli chceš denní, nebo týdenní
+  # verzi.
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Kterou verzi spustit ručně"
+        required: true
+        default: "daily"
+        type: choice
+        options:
+          - daily
+          - weekly
+
+jobs:
+  run-newsletter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repozitáře
+        uses: actions/checkout@v4
+
+      - name: Nastavení Pythonu
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalace závislostí
+        run: pip install -r requirements.txt
+
+      - name: Zjištění, jestli jde o denní nebo týdenní běh
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 6 * * 0" ]; then
+            echo "value=weekly" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=daily" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Spuštění agenta
+        working-directory: src
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
+          JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
+        run: python main.py --mode ${{ steps.mode.outputs.value }}
