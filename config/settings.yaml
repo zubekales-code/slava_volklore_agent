@@ -1,0 +1,68 @@
+# =============================================================================
+# NASTAVENÍ
+# =============================================================================
+# Stejně jako sources.yaml - uprav klidně přímo v prohlížeči na GitHubu.
+# =============================================================================
+
+email:
+  recipient: "slavavolkloreagent@gmail.com"
+  sender_name: "Sláva/Volklore Agent"
+  # Adresa odesílatele nastavíš při zakládání Resend účtu (viz README).
+  # Než si ověříš vlastní doménu, Resend nabízí testovací adresu
+  # "onboarding@resend.dev" - pro rozjezd stačí.
+  sender_email: "onboarding@resend.dev"
+
+schedule:
+  # GitHub Actions umí spouštět jen podle UTC (světového času), ne podle
+  # pražského času. V létě (letní čas, CEST) je Praha UTC+2, v zimě
+  # (CET) jen UTC+1. Aby newsletter chodil v 8:00 pražského času CELOROČNĚ,
+  # je potřeba dvakrát ročně (na jaře a na podzim) přepnout hodnotu níže
+  # o hodinu - přesný postup je v README.
+  daily_send_time_local: "08:00"
+  daily_cron_utc_summer: "0 6 * * *"   # používá se cca konec března - konec října
+  daily_cron_utc_winter: "0 7 * * *"   # používá se cca konec října - konec března
+  weekly_send_day: "Sunday"
+  weekly_cron_utc_summer: "0 6 * * 0"
+  weekly_cron_utc_winter: "0 7 * * 0"
+
+collection:
+  # Kolik hodin zpátky se má při sběru brát v úvahu (aby se nezahrnuly
+  # týden staré články, když něco jednou vynechá běh).
+  lookback_hours: 30
+  # Časový limit na jeden zdroj, ať jeden pomalý web nezablokuje celý běh.
+  per_source_timeout_seconds: 20
+
+selection:
+  # Kolik položek se maximálně vybere k plnému zpracování.
+  daily_max_items: 30
+  weekly_max_items: 60
+  # Jak daleko zpátky se hledají položky pro danou verzi newsletteru
+  # (nezávisle na 'collection.lookback_hours', který určuje jen to,
+  # co se nově STAHUJE ze zdrojů).
+  daily_digest_lookback_hours: 30
+  weekly_digest_lookback_hours: 168   # 7 dní
+  # Práh relevance 1-10 - pod touto hodnotou se položka do newsletteru
+  # vůbec nedostane (viz Krok 3 v shrnutí projektu).
+  min_relevance_score: 5
+  # Délka snippetu (ve slovech), pod kterou agent usoudí, že jde
+  # o placený/useknutý obsah a zkusí dohledat víc jinde (viz Krok 4).
+  paywall_snippet_word_threshold: 60
+
+newsletter:
+  daily_target_minutes: 6
+  weekly_target_minutes: 20
+
+models:
+  # Levný model - třídění / oskórování relevance (velký objem, jednoduchá úloha).
+  classifier_model: "gpt-5.6-luna"
+  # Výkonnější model - psaní finálního textu newsletteru.
+  writer_model: "gpt-5.6-terra"
+  # Pozn.: OpenAI modely se v čase mění/přejmenovávají. Pokud tenhle název
+  # přestane fungovat, stačí ho tu nahradit aktuálním - nic jiného se
+  # měnit nemusí. Aktuální seznam: platform.openai.com/docs/models
+
+supadata:
+  monthly_free_credits: 100
+  # Kolik nejnovějších videí na kanál se má za jeden běh maximálně zkusit
+  # přepsat - ochrana proti rychlému vyčerpání zdarma kreditu.
+  max_new_videos_per_channel_per_run: 3
