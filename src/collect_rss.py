@@ -40,7 +40,9 @@ def collect_rss_items(sources: list[dict], lookback_hours: int,
             resp = requests.get(
                 feed_url,
                 timeout=timeout_seconds,
-                headers={"User-Agent": "Mozilla/5.0 (compatible; VolkloreAgent/1.0)"},
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                        "Chrome/128.0.0.0 Safari/537.36"},
             )
             resp.raise_for_status()
             parsed = feedparser.parse(resp.content)

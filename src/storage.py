@@ -30,7 +30,11 @@ def _headers() -> dict:
 
 
 def _base_url() -> str:
-    return f"{Secrets.SUPABASE_URL.rstrip('/')}/rest/v1/{TABLE}"
+    url = Secrets.SUPABASE_URL.strip().rstrip("/")
+    if url and not url.startswith(("http://", "https://")):
+        # Ochrana proti časté chybě: SUPABASE_URL vyplněný bez "https://" vpředu.
+        url = "https://" + url
+    return f"{url}/rest/v1/{TABLE}"
 
 
 def upsert_items(items: list[dict[str, Any]]) -> int:
