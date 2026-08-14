@@ -1,0 +1,198 @@
+# =============================================================================
+# SEZNAM ZDROJŮ
+# =============================================================================
+# Tenhle soubor můžeš upravovat bez programování — přímo v prohlížeči na GitHubu
+# (otevři soubor -> ikona tužky -> uprav -> "Commit changes").
+#
+# Pravidla:
+#   - Klidně přidávej / mazej řádky. Odsazení (mezery na začátku řádku) musí
+#     zůstat stejné jako u ostatních položek ve stejné skupině.
+#   - Pokud si nejsi jistá/ý formátem, zkopíruj existující položku a jen uprav
+#     hodnoty.
+#   - Když se nějaký zdroj přestane načítat (web ho zrušil, změnil adresu…),
+#     skript ho podle zadání jen tiše přeskočí — nezastaví běh celého agenta.
+#     Chybu uvidíš v logu běhu na GitHubu (záložka Actions).
+# =============================================================================
+
+rss_sources:
+  # --- Fashion / Pop Culture / Design / Technology ---
+  - name: "Business of Fashion (BoF)"
+    category: "Fashion"
+    feed_url: "https://www.businessoffashion.com/feed/"
+    paywalled: true          # viz sekce 'Krok 4' v shrnutí - snippet + dohledání jinde
+  - name: "Vogue (US)"
+    category: "Fashion"
+    feed_url: "https://www.vogue.com/feed/rss"
+    paywalled: false
+  - name: "Dezeen"
+    category: "Design"
+    feed_url: "https://www.dezeen.com/feed/"
+    paywalled: false
+  - name: "WWD"
+    category: "Fashion"
+    feed_url: "https://wwd.com/fashion-news/feed/"
+    paywalled: false
+  - name: "Highsnobiety"
+    category: "Fashion/Culture"
+    feed_url: "https://www.highsnobiety.com/feed/"
+    paywalled: false
+  - name: "Hypebeast"
+    category: "Fashion/Culture"
+    feed_url: "https://hypebeast.com/feed"
+    paywalled: false
+  - name: "Creative Boom"
+    category: "Design/Culture"
+    feed_url: "https://www.creativeboom.com/feed/"
+    paywalled: false
+  - name: "Variety"
+    category: "Pop Culture"
+    feed_url: "https://variety.com/feed/"
+    paywalled: false
+
+  # --- Marketing & Digital ---
+  - name: "The Drum"
+    category: "Marketing"
+    feed_url: "https://www.thedrum.com/topics/rss"
+    paywalled: false
+  - name: "Campaign"
+    category: "Marketing"
+    feed_url: "https://www.campaignlive.co.uk/rss"
+    paywalled: false
+  - name: "Adweek"
+    category: "Marketing"
+    feed_url: "https://www.adweek.com/feed/"
+    paywalled: false
+
+  # --- Czech / CEE ---
+  - name: "Pavlína Louženská (newsletter)"
+    category: "Czech/CEE"
+    feed_url: "https://pavlinaspeaks.substack.com/feed"
+    paywalled: false
+  - name: "METALABEL"
+    category: "Creative economy"
+    feed_url: "https://metalabel.substack.com/feed"
+    paywalled: false
+
+  # --- Zdroje se statusem "Nutno ověřit" z tabulky, u kterých RSS adresa
+  # skutečně funguje (potvrzeno prvním ostrým během 14. 8. 2026) ---
+  - name: "i-D"
+    category: "Fashion/Culture"
+    feed_url: "https://i-d.co/feed/"
+    paywalled: false
+  - name: "The Interline"
+    category: "Technology"
+    feed_url: "https://www.theinterline.com/feed/"
+    paywalled: false
+  - name: "Document Journal"
+    category: "Fashion/Culture"
+    feed_url: "https://www.documentjournal.com/feed/"
+    paywalled: false
+  - name: "CzechCrunch"
+    category: "Czech/CEE"
+    feed_url: "https://cc.cz/feed/"
+    paywalled: false
+  - name: "Dolce Vita"
+    category: "Czech/CEE"
+    feed_url: "https://www.dolcevita.cz/feed"
+    paywalled: false
+  - name: "Forbes Czech Republic"
+    category: "Czech/CEE"
+    feed_url: "https://forbes.cz/feed/"
+    paywalled: false
+
+  # --- Zdroje blokované jako "403 Forbidden" při prvním ostrém běhu ---
+  # Adresa je pravděpodobně správná, ale web blokuje požadavky ze serveru
+  # (ne z běžného prohlížeče). U RSS/collect_rss.py teď běží realističtější
+  # "prohlížečová" hlavička, která tohle u části webů může vyřešit -- necháno
+  # tu, uvidíme při dalším běhu. Pokud to nepomůže, zůstanou tiše přeskočené.
+  # (BoF, The Drum, Campaign, Pavlína Louženská a METALABEL sem NEpatří --
+  # ty už jsou výše, tohle jsou jen ty NOVĚ zjištěné 403 z prvního běhu.)
+  - name: "Vogue Business"
+    category: "Fashion"
+    feed_url: "https://www.voguebusiness.com/feed/rss"
+    paywalled: true
+  - name: "Wearable Technologies"
+    category: "Technology"
+    feed_url: "https://www.wearable-technologies.com/feed/"
+    paywalled: false
+  - name: "Frieze"
+    category: "Art"
+    feed_url: "https://www.frieze.com/rss.xml"
+    paywalled: false
+  - name: "The Impression"
+    category: "Marketing/Fashion"
+    feed_url: "https://theimpression.com/feed/"
+    paywalled: false
+
+
+# =============================================================================
+# WEBY BEZ RSS (nebo bez ověřené RSS adresy použité jako jistota navíc)
+# Tyhle se čtou jinak: Jina Reader přečte stránku s výpisem novinek,
+# levný jazykový model z ní vytáhne titulky a odkazy.
+# 'listing_url' = adresa stránky, kde web ukazuje své nejnovější články.
+# =============================================================================
+no_rss_sources:
+  - name: "Think with Google"
+    category: "Marketing"
+    listing_url: "https://business.google.com/en-all/think/"
+    paywalled: false
+
+  # --- Přesunuto sem z rss_sources 14. 8. 2026 -- adresa RSS vracela 404
+  # (buď špatně odhadnutá, nebo web RSS opravdu zrušil). Teď je čte
+  # záložní mechanismus: Jina Reader + AI extrakce z výpisu novinek.
+  - name: "SHOWStudio"
+    category: "Fashion"
+    listing_url: "https://www.showstudio.com"
+    paywalled: false
+  - name: "Dazed"
+    category: "Fashion/Culture"
+    listing_url: "https://www.dazeddigital.com/news"
+    paywalled: false
+  - name: "032c"
+    category: "Fashion/Culture"
+    listing_url: "https://032c.com/magazine"
+    paywalled: false
+  - name: "It's Nice That"
+    category: "Design"
+    listing_url: "https://www.itsnicethat.com"
+    paywalled: false
+  - name: "Vogue CS"
+    category: "Czech/CEE"
+    listing_url: "https://www.vogue.cz"
+    paywalled: false
+  - name: "Hey Fomo"
+    category: "Czech/CEE"
+    listing_url: "https://heyfomo.cz"
+    paywalled: false
+  - name: "ELLE CZ"
+    category: "Czech/CEE"
+    listing_url: "https://www.elle.cz"
+    paywalled: false
+
+  # Poznámka: pokud se v budoucnu ukáže, že některý zdroj výše (v rss_sources)
+  # opravdu nemá funkční RSS, stačí ho přesunout sem - přidat "listing_url"
+  # (adresu výpisu novinek) a smazat ho z rss_sources.
+
+
+# =============================================================================
+# YOUTUBE KANÁLY
+# channel_id najdeš na youtube.com -> otevři kanál -> "..." / Sdílet -> Kopírovat
+# odkaz, nebo ve zdrojovém kódu stránky (Ctrl+U, hledej "channelId").
+# =============================================================================
+youtube_channels:
+  - name: "Emma Chamberlain"
+    channel_id: "UC78cxCAcp7JfQPgKxYdyGrg"
+  - name: "Nicky Reardon"
+    channel_id: "UCof5APIJ8OHOJbiVGU3wouA"
+
+
+# =============================================================================
+# PODCASTY - zatím vypnuto (zapojí se později stejným principem jako YouTube).
+# Necháváno tu jako připravené místo, ať se ví, kam to v budoucnu patří.
+# =============================================================================
+podcasts:
+  enabled: false
+  shows: []
+  # Až budeme podcasty zapojovat, každá položka bude vypadat takto:
+  # - name: "Articles of Interest"
+  #   rss_feed_url: "https://.../feed.xml"   # najde se přes Apple Podcasts
