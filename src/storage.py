@@ -56,13 +56,20 @@ def upsert_items(items: list[dict[str, Any]]) -> int:
 
     headers = _headers()
     # 'resolution=ignore-duplicates' = když už url existuje, řádek se přeskočí
-    # místo aby to spadlo na chybu unikátnosti.
+    # místo aby to spadlo na chybu unikátnosti. ALE tenhle režim funguje jen
+    # spolu s 'on_conflict' parametrem, který Supabase řekne, podle kterého
+    # sloupce duplicity poznávat -- bez něj to spadne na 409 pro CELOU dávku,
+    # i kdyby kolidovala jen jedna jediná položka z mnoha (přesně tahle chyba
+    # se stala 16. 8. 2026 a smazala celý denní sběr).
     headers["Prefer"] = "resolution=ignore-duplicates,return=minimal"
+    params = {"on_conflict": "url"}
     try:
-        resp = requests.post(_base_url(), headers=headers, json=normalized_items, timeout=30)
+        resp = requests.post(_base_url(), headers=headers, params=params,
+                              json=normalized_items, timeout=30)
         if resp.status_code not in (200, 201, 204):
             logger.warning("Supabase upsert: neočekávaný status %s: %s",
                             resp.status_code, resp.text[:300])
+            return 0
         return len(normalized_items)
     except requests.RequestException as e:
         logger.warning("Supabase upsert selhal: %s", e)
@@ -145,3 +152,4 @@ def update_full_text(url: str, full_text: str) -> None:
                         json={"full_text": full_text}, timeout=15)
     except requests.RequestException as e:
         logger.warning("Nepodařilo se uložit plný text pro %s: %s", url, e)
+
