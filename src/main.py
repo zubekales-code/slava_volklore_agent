@@ -32,6 +32,7 @@ from scoring import score_items
 from fetch_fulltext import enrich_items
 from write_newsletter import write_newsletter
 from send_email import send_newsletter_email
+import openai_client
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,7 +59,11 @@ def run_collection(sources: dict, settings: dict) -> None:
 
     all_items = rss_items + no_rss_items + yt_items
     logger.info("Celkem nasbíráno %d položek, ukládám do Supabase...", len(all_items))
-    storage.upsert_items(all_items)
+    written = storage.upsert_items(all_items)
+    if written == 0 and all_items:
+        logger.warning("Uložení do Supabase selhalo (0 z %d položek) -- viz "
+                        "chyba výše. Tenhle běh nepřidá nic nového ke skórování.",
+                        len(all_items))
 
 
 def run_scoring(sources: dict, settings: dict) -> None:
@@ -124,9 +129,36 @@ def main() -> int:
 
     run_digest(args.mode, settings)
 
+    log_usage_summary(settings)
     logger.info("Hotovo.")
     return 0
 
 
+def log_usage_summary(settings: dict) -> None:
+    """Vypíše na konci logu skutečnou spotřebu tokenů a odhad ceny běhu --
+    ať se příště nemusí odhadovat od oka."""
+    usage = openai_client.get_usage_summary()
+    if not usage:
+        return
+    pricing = settings.get("pricing", {})
+    total_cost = 0.0
+    logger.info("=== Spotřeba OpenAI tokenů za tento běh ===")
+    for model, stats in usage.items():
+        price = pricing.get(model)
+        cost_str = ""
+        if price:
+            cost = (stats["prompt_tokens"] / 1_000_000 * price["input"]
+                    + stats["completion_tokens"] / 1_000_000 * price["output"])
+            total_cost += cost
+            cost_str = f", odhad ceny ~${cost:.4f}"
+        logger.info(
+            "  %s: %d volání, %d vstupních + %d výstupních tokenů%s",
+            model, stats["calls"], stats["prompt_tokens"], stats["completion_tokens"], cost_str,
+        )
+    if total_cost:
+        logger.info("  CELKEM tento běh: ~$%.4f", total_cost)
+
+
 if __name__ == "__main__":
     sys.exit(main())
+
