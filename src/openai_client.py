@@ -17,6 +17,24 @@ logger = logging.getLogger("openai_client")
 
 _client: OpenAI | None = None
 
+# Sleduje spotřebu tokenů za celý běh, ať se dá na konci vypsat skutečná
+# cena místo odhadu. Reset na začátku každého spuštění (modul se načte znovu).
+_usage: dict[str, dict[str, int]] = {}
+
+
+def _track_usage(model: str, usage) -> None:
+    if usage is None:
+        return
+    bucket = _usage.setdefault(model, {"prompt_tokens": 0, "completion_tokens": 0, "calls": 0})
+    bucket["prompt_tokens"] += getattr(usage, "prompt_tokens", 0) or 0
+    bucket["completion_tokens"] += getattr(usage, "completion_tokens", 0) or 0
+    bucket["calls"] += 1
+
+
+def get_usage_summary() -> dict[str, dict[str, int]]:
+    """Vrací {model: {prompt_tokens, completion_tokens, calls}} za tenhle běh."""
+    return _usage
+
 
 def _get_client() -> OpenAI:
     global _client
@@ -40,6 +58,7 @@ def complete_json(system_prompt: str, user_content: str, model: str) -> dict | l
             ],
             response_format={"type": "json_object"},
         )
+        _track_usage(model, resp.usage)
         raw = resp.choices[0].message.content
         return json.loads(raw)
     except Exception as e:  # noqa: BLE001
@@ -63,7 +82,28 @@ def complete_text(system_prompt: str, user_content: str, model: str,
             ],
             max_completion_tokens=max_output_tokens,
         )
-        return resp.choices[0].message.content
+        _track_usage(model, resp.usage)
+        content = resp.choices[0].message.content
+        if not content:
+            # Prázdný text s HTTP 200 obvykle znamená, že "reasoning" model
+            # spotřeboval celý max_completion_tokens strop na neviditelné
+            # přemýšlení ještě před napsáním viditelného textu. Vypíšeme
+            # detaily rovnou do logu, ať se to příště nemusí znovu dohledávat.
+            finish_reason = resp.choices[0].finish_reason
+            reasoning_tokens = None
+            details = getattr(resp.usage, "completion_tokens_details", None)
+            if details is not None:
+                reasoning_tokens = getattr(details, "reasoning_tokens", None)
+            logger.warning(
+                "OpenAI vrátilo prázdný text (model=%s, finish_reason=%s, "
+                "reasoning_tokens=%s, max_completion_tokens=%d) -- pravděpodobně "
+                "došel strop na 'přemýšlení' modelu ještě před napsáním "
+                "viditelného textu. Zkus zvýšit max_output_tokens.",
+                model, finish_reason, reasoning_tokens, max_output_tokens,
+            )
+            return None
+        return content
     except Exception as e:  # noqa: BLE001
         logger.warning("OpenAI textové volání selhalo: %s", e)
         return None
+
