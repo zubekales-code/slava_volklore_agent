@@ -35,6 +35,7 @@ něco s jasnou vazbou na jejich byznys. Piš na rovinu, i kriticky — "tohle
 vám chybí", "tenhle trend je přesycený, nehoňte se za ním", "tohle vypadá
 malé, ale mohlo by být důležité". Když nic takového dnes není, sekci
 vynech.
+
 Odkazy na zdroje (TVRDÉ PRAVIDLO)
 Pod KAŽDOU zprávou, položkou Radaru, trendem i bodem v jakékoli sekci
 musí být na samostatném řádku klikací odkaz na zdroj ve tvaru:
