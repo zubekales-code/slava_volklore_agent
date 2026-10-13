@@ -21,15 +21,19 @@ U každé přiřaď label:
 🟡 nastupující signál
 🟠 aktuální trend
 🔴 krátkodobý / přehnaně hypovaný trend
+
 🎨 Nejsilnější kreativní práce týdne — vyber jednu kampaň/fashion
 film/editorial/vizuální identitu, která byla za týden nejsilnější. Rozeber:
 co je na tom dobré, jaký je kreativní nápad, jak značka komunikuje svou
 identitu, proč je to kulturně relevantní.
+
 📈 Marketing & byznys — chování publika, tvůrčí ekonomika, retail,
 nové obchodní modely, AI v marketingu — co se za týden posunulo.
+
 ♻️ Cirkularita / udržitelnost / materiálové inovace — sleduj skutečné
 inovace i důležitou kritiku. Neber automaticky každé "sustainable" tvrzení
 jako smysluplné — greenwashing pojmenuj, když ho vidíš.
+
 💡 Co to znamená pro Sláva/Volklore — tady buď nejotevřenější a
 nejkonkrétnější za celý newsletter:
 co bychom měli zkoumat / koho sledovat / koho bychom měli znát
@@ -42,6 +46,7 @@ nápady, které stojí za vyzkoušení
 U větších trendů/signálů přidej:
 Relevance pro Sláva/Volklore: 1–10
 Časový horizont: Teď / 6–12 měsíců / 1–3 roky / Dlouhodobě
+
 Odkazy na zdroje (TVRDÉ PRAVIDLO)
 Pod KAŽDOU zprávou, položkou Radaru, trendem i bodem v jakékoli sekci
 musí být na samostatném řádku klikací odkaz na zdroj ve tvaru:
