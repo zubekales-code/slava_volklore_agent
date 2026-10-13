@@ -5,6 +5,7 @@ Krok 5: psaní finálního textu newsletteru (denní nebo týdenní verze).
 from __future__ import annotations
 
 import logging
+import re
 
 import markdown as md
 
@@ -30,6 +31,12 @@ HTML_TEMPLATE = """\
 """
 
 
+def _source_link(item: dict) -> str:
+    """Hotový markdown odkaz [Název zdroje](URL) -- model ho má jen zkopírovat."""
+    name = (item.get("source") or "zdroj").replace("[", "(").replace("]", ")")
+    return f"[{name}]({item['url']})"
+
+
 def _items_to_context(items: list[dict]) -> str:
     parts = []
     for item in items:
@@ -39,10 +46,26 @@ def _items_to_context(items: list[dict]) -> str:
             f"### {item['title']}\n"
             f"Zdroj: {item.get('source', '')} | Kategorie: {item.get('category', '')}\n"
             f"Odkaz: {item['url']}\n"
+            f"HOTOVÝ ODKAZ (zkopíruj doslova pod zprávu): {_source_link(item)}\n"
             + (f"Poznámka: {note}\n" if note else "")
             + f"\n{text}\n"
         )
     return "\n---\n".join(parts)
+
+
+def _check_links(text: str, items: list[dict]) -> None:
+    """Jen kontrola a zápis do logu -- nic v textu nemění."""
+    known = {i["url"].rstrip("/") for i in items}
+    found = re.findall(r"\]\((https?://[^)\s]+)\)", text)
+    unknown = [u for u in found if u.rstrip("/") not in known]
+    used = {u.rstrip("/") for u in found} & known
+    logger.info("Odkazy v newsletteru: %d celkem, %d unikátních ze vstupu.",
+                len(found), len(used))
+    if unknown:
+        logger.warning("Newsletter obsahuje %d odkazů, které nejsou ve vstupních "
+                       "položkách (možná vymyšlené): %s", len(unknown), unknown[:5])
+    if not found:
+        logger.warning("Newsletter neobsahuje ŽÁDNÝ odkaz na zdroj!")
 
 
 def write_newsletter(items: list[dict], mode: str, writer_model: str) -> tuple[str, str]:
@@ -72,9 +95,14 @@ def write_newsletter(items: list[dict], mode: str, writer_model: str) -> tuple[s
         text = ("Dnešní/tento týdenní newsletter se nepodařilo vygenerovat "
                 "kvůli technické chybě. Zkontroluj log běhu na GitHubu.")
 
-    html_body = md.markdown(text)
+    _check_links(text, items)
+
+    html_body = md.markdown(text, extensions=["nl2br"])
+    # Odkazy v e-mailu: výrazná barva + podtržení (e-mailové klienty často
+    # ignorují výchozí styl odkazů).
+    html_body = html_body.replace(
+        "<a href=", '<a style="color:#1D4ED8; text-decoration:underline;" href=')
     mode_label = "denní verze" if mode == "daily" else "týdenní shrnutí"
     html = HTML_TEMPLATE.format(content=html_body, mode_label=mode_label)
 
     return text, html
-
