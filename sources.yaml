@@ -125,6 +125,55 @@ rss_sources:
     paywalled: false
 
 
+  # --- NOVÉ zdroje (13. 10. 2026): náhrady za blokované zdroje výše.
+  # Každá adresa byla ověřena jako platný RSS s aktuálními články.
+  # Ověření ale proběhlo mimo GitHub -- jestli je web pustí i z GitHub Actions,
+  # ukáže test 7 v diagnostice (Run workflow -> diagnostics).
+  - name: "Fashionista"
+    category: "Fashion"
+    feed_url: "https://www.fashionista.com/.rss/full/"
+    paywalled: false
+  - name: "Glossy"
+    category: "Fashion/Marketing"
+    feed_url: "https://www.glossy.co/feed/"
+    paywalled: false
+  - name: "Marketing Dive"
+    category: "Marketing"
+    feed_url: "https://www.marketingdive.com/feeds/news/"
+    paywalled: false
+  - name: "Marketing Week"
+    category: "Marketing"
+    feed_url: "https://www.marketingweek.com/feed/"
+    paywalled: false
+  - name: "Creative Review"
+    category: "Design/Marketing"
+    feed_url: "https://www.creativereview.co.uk/feed/"
+    paywalled: false
+  - name: "Hyperallergic"
+    category: "Art"
+    feed_url: "https://hyperallergic.com/feed/"
+    paywalled: false
+  - name: "Artnet News"
+    category: "Art"
+    feed_url: "https://news.artnet.com/feed"
+    paywalled: false
+  - name: "Designboom"
+    category: "Design"
+    feed_url: "https://www.designboom.com/feed/"
+    paywalled: false
+  - name: "Wallpaper*"
+    category: "Design/Culture"
+    feed_url: "https://www.wallpaper.com/rss"
+    paywalled: false
+  - name: "Médiář"
+    category: "Czech/CEE"
+    feed_url: "https://mediar.cz/feed/"
+    paywalled: false
+  - name: "DesignMag.cz"
+    category: "Czech/CEE"
+    feed_url: "https://www.designmag.cz/feed/"
+    paywalled: false
+
 # =============================================================================
 # WEBY BEZ RSS (nebo bez ověřené RSS adresy použité jako jistota navíc)
 # Tyhle se čtou jinak: Jina Reader přečte stránku s výpisem novinek,
