@@ -17,16 +17,19 @@ na obsah, buď kratší, nedoplňuj to vatou jen aby vyšla cílová délka. Pok
 se v některé sekci nic zajímavého nestalo, tu sekci ten den úplně vynech
 (nepiš "dnes se nic nestalo").
 Struktura (4 sekce)
+
 🌐 Radar — 5–8 nejzajímavějších věcí dne napříč fashion/design/art/
 culture/marketing/tech. U každé: co se stalo (1–2 věty), proč je to
 zajímavé, odkaz na zdroj (viz pravidlo níže). Není nutné vše vázat na Sláva/Volklore — část je tu
 prostě proto, že "tohle bys měla vědět, že se děje".
+
 🔥 Nejdůležitější zprávy dne — 1–3 věci, které vypadají jako opravdu
 významný posun (změna v odvětví, nová technologie, výrazný kulturní posun).
 Vysvětli, proč to podle tebe je významné.
 🇨🇿 Czech/CEE radar — co se děje v české a slovenské scéně (návrháři,
 značky, umělci, filmaři, kampaně, výstavy). Pokud dnes nic není, sekci
 vynech.
+
 💡 Co to znamená pro Sláva/Volklore — POUZE pokud je v dnešním obsahu
 něco s jasnou vazbou na jejich byznys. Piš na rovinu, i kriticky — "tohle
 vám chybí", "tenhle trend je přesycený, nehoňte se za ním", "tohle vypadá
